@@ -59,28 +59,37 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="categoria_id">Categoría *</label>
-                                <select class="form-control" id="categoria_id" name="categoria_id" required>
-                                    <option value="">Seleccione una categoría</option>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id }}" 
-                                            {{ old('categoria_id', $producto->categoria_id) == $categoria->id ? 'selected' : '' }}>
-                                            {{ $categoria->nombre }}
+                                <label for="etiqueta_id">Etiqueta *</label>
+                                <select class="form-control" id="etiqueta_id" name="etiqueta_id" required>
+                                    <option value="">Seleccione una etiqueta</option>
+                                    @foreach($etiquetas as $etiqueta)
+                                        <option value="{{ $etiqueta->id }}" 
+                                            {{ old('etiqueta_id', $producto->etiqueta_id) == $etiqueta->id ? 'selected' : '' }}>
+                                            {{ $etiqueta->nombre }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label for="proveedor_id">Proveedor *</label>
-                                <select class="form-control" id="proveedor_id" name="proveedor_id" required>
+                                <label for="proveedores_id">Proveedor *</label>
+                                <select class="form-control" id="proveedores_id" name="proveedores_id" required>
                                     <option value="">Seleccione un proveedor</option>
                                     @foreach($proveedores as $proveedor)
                                         <option value="{{ $proveedor->id }}" 
-                                            {{ old('proveedor_id', $producto->proveedor_id) == $proveedor->id ? 'selected' : '' }}>
-                                            {{ $proveedor->nombre }}
+                                            {{ old('proveedores_id', $producto->proveedores_id) == $proveedor->id ? 'selected' : '' }}>
+                                            {{ $proveedor->nombre_empresa }}
                                         </option>
                                     @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="estado_producto">Estado del Producto *</label>
+                                <select class="form-control" id="estado_producto" name="estado_producto" required>
+                                    <option value="activo" {{ old('estado_producto', $producto->estado_producto) == 'activo' ? 'selected' : '' }}>Activo</option>
+                                    <option value="inactivo" {{ old('estado_producto', $producto->estado_producto) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                                    <option value="agotado" {{ old('estado_producto', $producto->estado_producto) == 'agotado' ? 'selected' : '' }}>Agotado</option>
                                 </select>
                             </div>
 
@@ -103,9 +112,29 @@
                                         {{ $producto->imagen_producto ? 'Cambiar imagen...' : 'Seleccionar imagen...' }}
                                     </label>
                                 </div>
-                                <small class="form-text text-muted">
-                                    Formatos permitidos: jpeg, png, jpg, gif. Tamaño máximo: 2MB
-                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="video_producto">Video del Producto</label>
+                                
+                                @if($producto->video_producto)
+                                    <div class="mb-2">
+                                        <video controls style="max-width: 200px; max-height: 200px;">
+                                            <source src="{{ asset('videos/productos/' . $producto->video_producto) }}" type="video/mp4">
+                                            Tu navegador no soporta el elemento video.
+                                        </video>
+                                        <br>
+                                        <small>Video actual</small>
+                                    </div>
+                                @endif
+
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="video_producto" name="video_producto"
+                                           accept="video/*">
+                                    <label class="custom-file-label" for="video_producto">
+                                        {{ $producto->video_producto ? 'Cambiar video...' : 'Seleccionar video...' }}
+                                    </label>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -122,23 +151,4 @@
             </div>
         </div>
     </div>
-@stop
-
-@section('css')
-    <style>
-        .custom-file-input:lang(es) ~ .custom-file-label::after {
-            content: "Buscar";
-        }
-    </style>
-@stop
-
-@section('js')
-    <script>
-        // Mostrar el nombre del archivo seleccionado
-        document.querySelector('.custom-file-input').addEventListener('change', function(e) {
-            var fileName = document.getElementById("imagen_producto").files[0]?.name || 'Seleccionar imagen...';
-            var nextSibling = e.target.nextElementSibling;
-            nextSibling.innerText = fileName;
-        });
-    </script>
 @stop

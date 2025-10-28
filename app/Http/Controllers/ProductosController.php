@@ -5,33 +5,24 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;    
 use App\Models\Producto;
-use App\Models\Categoria;
+use App\Models\Etiqueta;
 use App\Models\Proveedor;
 
 class ProductosController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $productos = Producto::all();
+        $productos = Producto::with(['etiqueta', 'proveedor'])->get();
         return view('productos.index', compact('productos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $categorias = Categoria::all();
+        $etiquetas = Etiqueta::all();
         $proveedores = Proveedor::all();
-        return view('productos.create', compact('categorias', 'proveedores'));
+        return view('productos.create', compact('etiquetas', 'proveedores'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -39,18 +30,27 @@ class ProductosController extends Controller
             'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'categoria_id' => 'required|exists:categorias,id',
-            'proveedor_id' => 'required|exists:proveedors,id',
             'imagen_producto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'video_producto' => 'nullable|mimes:mp4,mov,avi|max:10240', // CORREGIDO: video validation
+            'estado_producto' => 'required|string|in:activo,inactivo,agotado',
+            'etiqueta_id' => 'required|exists:etiquetas,id',           
+            'proveedores_id' => 'required|exists:proveedores,id', // CORREGIDO: proveedores_id
         ]);
 
         $data = $request->all();
 
-        // Manejar la imagen si se subió
+        // Manejar la imagen
         if ($request->hasFile('imagen_producto')) {
             $imageName = time().'.'.$request->imagen_producto->extension();
             $request->imagen_producto->move(public_path('images/productos'), $imageName);
             $data['imagen_producto'] = $imageName;
+        }
+
+        // Manejar el video
+        if ($request->hasFile('video_producto')) {
+            $videoName = time().'_video.'.$request->video_producto->extension();
+            $request->video_producto->move(public_path('videos/productos'), $videoName);
+            $data['video_producto'] = $videoName;
         }
 
         Producto::create($data);
@@ -59,29 +59,20 @@ class ProductosController extends Controller
                          ->with('success', 'Producto creado exitosamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        $producto = Producto::findOrFail($id);
+        $producto = Producto::with(['etiqueta', 'proveedor'])->findOrFail($id);
         return view('productos.show', compact('producto'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $producto = Producto::findOrFail($id);
-        $categorias = Categoria::all();
+        $etiquetas = Etiqueta::all(); // CORREGIDO: etiquetas no categorias
         $proveedores = Proveedor::all();
-        return view('productos.edit', compact('producto', 'categorias', 'proveedores'));
+        return view('productos.edit', compact('producto', 'etiquetas', 'proveedores'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $producto = Producto::findOrFail($id);
@@ -91,14 +82,16 @@ class ProductosController extends Controller
             'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'categoria_id' => 'required|exists:categorias,id',
-            'proveedor_id' => 'required|exists:proveedors,id',
+            'etiqueta_id' => 'required|exists:etiquetas,id', // CORREGIDO
+            'proveedores_id' => 'required|exists:proveedores,id', // CORREGIDO
             'imagen_producto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'video_producto' => 'nullable|mimes:mp4,mov,avi|max:10240',
+            'estado_producto' => 'required|string|in:activo,inactivo,agotado',
         ]);
 
         $data = $request->all();
 
-        // Manejar la imagen si se subió una nueva
+        // Manejar nueva imagen
         if ($request->hasFile('imagen_producto')) {
             // Eliminar imagen anterior si existe
             if ($producto->imagen_producto && file_exists(public_path('images/productos/'.$producto->imagen_producto))) {
@@ -110,18 +103,37 @@ class ProductosController extends Controller
             $data['imagen_producto'] = $imageName;
         }
 
+        // Manejar nuevo video
+        if ($request->hasFile('video_producto')) {
+            // Eliminar video anterior si existe
+            if ($producto->video_producto && file_exists(public_path('videos/productos/'.$producto->video_producto))) {
+                unlink(public_path('videos/productos/'.$producto->video_producto));
+            }
+            
+            $videoName = time().'_video.'.$request->video_producto->extension();
+            $request->video_producto->move(public_path('videos/productos'), $videoName);
+            $data['video_producto'] = $videoName;
+        }
+
         $producto->update($data);
 
         return redirect()->route('producto.index')
                          ->with('success', 'Producto actualizado exitosamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $producto = Producto::findOrFail($id);
+        
+        // Eliminar archivos físicos
+        if ($producto->imagen_producto && file_exists(public_path('images/productos/'.$producto->imagen_producto))) {
+            unlink(public_path('images/productos/'.$producto->imagen_producto));
+        }
+        
+        if ($producto->video_producto && file_exists(public_path('videos/productos/'.$producto->video_producto))) {
+            unlink(public_path('videos/productos/'.$producto->video_producto));
+        }
+        
         $producto->delete();
 
         return redirect()->route('producto.index')

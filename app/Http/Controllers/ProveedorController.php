@@ -15,7 +15,6 @@ class ProveedorController extends Controller
      */
     public function index()
     {
-        // $proveedores = Proveedor::orderBy('created_at', 'desc')->paginate(10);
         $proveedores = Proveedor::latest()->get();
         return view('proveedores.index', compact('proveedores'));
     }

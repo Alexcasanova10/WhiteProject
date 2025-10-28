@@ -82,43 +82,43 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="categoria_id">Categoría *</label>
-                                <select class="form-control @error('categoria_id') is-invalid @enderror" 
-                                        id="categoria_id" name="categoria_id" required>
-                                    <option value="">Seleccione una categoría</option>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id }}" 
-                                            {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
-                                            {{ $categoria->nombre }}
+                                <label for="etiqueta_id">Etiqueta *</label>
+                                <select class="form-control @error('etiqueta_id') is-invalid @enderror" 
+                                        id="etiqueta_id" name="etiqueta_id" required>
+                                    <option value="">Seleccione una etiqueta</option>
+                                    @foreach($etiquetas as $etiqueta)
+                                        <option value="{{ $etiqueta->id }}" 
+                                            {{ old('etiqueta_id') == $etiqueta->id ? 'selected' : '' }}>
+                                            {{ $etiqueta->nombre }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('categoria_id')
+                                @error('etiqueta_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="form-group">
-                                <label for="proveedor_id">Proveedor *</label>
-                                <select class="form-control @error('proveedor_id') is-invalid @enderror" 
-                                        id="proveedor_id" name="proveedor_id" required>
+                                <label for="proveedores_id">Proveedor *</label>
+                                <select class="form-control @error('proveedores_id') is-invalid @enderror" 
+                                        id="proveedores_id" name="proveedores_id" required>
                                     <option value="">Seleccione un proveedor</option>
                                     @foreach($proveedores as $proveedor)
                                         <option value="{{ $proveedor->id }}" 
-                                            {{ old('proveedor_id') == $proveedor->id ? 'selected' : '' }}>
-                                            {{ $proveedor->nombre }}
+                                            {{ old('proveedores_id') == $proveedor->id ? 'selected' : '' }}>
+                                            {{ $proveedor->nombre_empresa }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('proveedor_id')
+                                @error('proveedores_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="form-group">
-                                <label for="estado_producto">Estado del Producto</label>
+                                <label for="estado_producto">Estado del Producto *</label>
                                 <select class="form-control @error('estado_producto') is-invalid @enderror" 
-                                        id="estado_producto" name="estado_producto">
+                                        id="estado_producto" name="estado_producto" required>
                                     <option value="activo" {{ old('estado_producto', 'activo') == 'activo' ? 'selected' : '' }}>Activo</option>
                                     <option value="inactivo" {{ old('estado_producto') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                                     <option value="agotado" {{ old('estado_producto') == 'agotado' ? 'selected' : '' }}>Agotado</option>
@@ -144,16 +144,17 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="video_producto">Video del Producto (URL)</label>
-                                <input type="url" class="form-control @error('video_producto') is-invalid @enderror" 
-                                       id="video_producto" name="video_producto" 
-                                       value="{{ old('video_producto') }}" 
-                                       placeholder="https://ejemplo.com/video.mp4">
+                                <label for="video_producto">Video del Producto</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input @error('video_producto') is-invalid @enderror" 
+                                           id="video_producto" name="video_producto" accept="video/*">
+                                    <label class="custom-file-label" for="video_producto">Seleccionar video...</label>
+                                </div>
                                 @error('video_producto')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                                 <small class="form-text text-muted">
-                                    Opcional: Ingresa la URL de un video del producto
+                                    Formatos permitidos: mp4, mov, avi. Tamaño máximo: 10MB
                                 </small>
                             </div>
 
@@ -172,86 +173,6 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Información Adicional</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-info-circle"></i> Campos Requeridos</h6>
-                            <small>Todos los campos marcados con (*) son obligatorios.</small>
-                        </div>
-                        <div class="alert alert-warning">
-                            <h6><i class="fas fa-exclamation-triangle"></i> Recomendaciones</h6>
-                            <small>
-                                <ul class="mb-0 pl-3">
-                                    <li>Usa imágenes de buena calidad</li>
-                                    <li>Verifica los precios antes de guardar</li>
-                                    <li>Actualiza el stock regularmente</li>
-                                </ul>
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
-@stop
-
-@section('css')
-    <style>
-        .custom-file-input:lang(es) ~ .custom-file-label::after {
-            content: "Buscar";
-        }
-        .invalid-feedback {
-            display: block;
-        }
-        .card {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-    </style>
-@stop
-
-@section('js')
-    <script>
-        // Mostrar el nombre del archivo seleccionado
-        document.querySelector('.custom-file-input').addEventListener('change', function(e) {
-            var fileName = e.target.files[0] ? e.target.files[0].name : 'Seleccionar imagen...';
-            var nextSibling = e.target.nextElementSibling;
-            nextSibling.innerText = fileName;
-        });
-
-        // Validación en tiempo real para precio y stock
-        document.getElementById('precio').addEventListener('input', function(e) {
-            if (this.value < 0) {
-                this.value = 0;
-            }
-        });
-
-        document.getElementById('stock').addEventListener('input', function(e) {
-            if (this.value < 0) {
-                this.value = 0;
-            }
-        });
-
-        // Confirmación antes de enviar el formulario
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const precio = document.getElementById('precio').value;
-            const stock = document.getElementById('stock').value;
-            
-            if (precio <= 0) {
-                e.preventDefault();
-                alert('El precio debe ser mayor a 0');
-                return false;
-            }
-            
-            if (stock < 0) {
-                e.preventDefault();
-                alert('El stock no puede ser negativo');
-                return false;
-            }
-        });
-    </script>
 @stop
