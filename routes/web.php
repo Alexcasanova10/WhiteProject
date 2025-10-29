@@ -12,9 +12,11 @@ use App\Http\Controllers\OrdenController;
 Route::get('/', function () {
     return view('landing-page');
 });
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// User  ejemplo@gmail.com owo123456
 
 Auth::routes();
-// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
 Route::get('/imprimir', [App\Http\Controllers\GeneradorController::class, 'imprimir'])->name('imprimir');

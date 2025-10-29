@@ -18,7 +18,7 @@ class GeneradorController extends Controller
     }
 
     public function imprimirBD(){
-       $etiquetas = Etiqueta::WHERE('estado_etiqueta','3')->get();
+       $etiquetas = Etiqueta::WHERE('estado_etiqueta')->get();
        $pdf=\PDF::loadview('ejemplobd', compact('etiquetas'));
        return $pdf->download('ejemplobd.pdf');
    }
